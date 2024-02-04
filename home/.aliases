@@ -1,0 +1,29 @@
+### DICA: Adiciona em /$HOME/.$SHELLrc ###
+#if [ -f ~/.aliases ]; then
+#	source ~/.aliases;
+#fi
+###
+
+### Packages Managers ###
+
+## Apt - debian/ubuntu
+alias in='sudo apt install'
+alias se='apt search'
+alias re='sudo apt remove'
+alias upg='sudo apt update && sudo apt upgrade'
+alias autore='sudo apt autoremove'
+
+### Systemd ###
+alias sv='sudo systemctl'
+
+### Extras ###
+
+## Utils
+alias pdfl='pdflatex'
+alias za='zathura'
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+alias vim='nvim'
+#### Edit Configs ####
+alias zshrc='vi ~/.zshrc'
