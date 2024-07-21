@@ -4,19 +4,8 @@
 #fi
 ###
 
-### Packages Managers ###
-
-## Apt - debian/ubuntu
-alias in='sudo apt install'
-alias se='apt search'
-alias re='sudo apt remove'
-alias upg='sudo apt update && sudo apt upgrade'
-alias autore='sudo apt autoremove'
-
 ### Systemd ###
 alias sv='sudo systemctl'
-
-### Extras ###
 
 ## Utils
 alias pdfl='pdflatex'
