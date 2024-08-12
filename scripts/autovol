@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# Define o nome do dispositivo de saída padrão
+DEFAULT_SINK=$(pactl info | grep 'Default Sink' | awk '{print $3}')
+
+# Executa o comando pactl monitor para detectar a conexão e desconexão do dispositivo HDMI
+pactl subscribe | while read -r event; do
+  if echo "$event" | grep -q "card"; then
+    # Se um dispositivo de áudio for conectado ou desconectado
+    # aguarda alguns segundos para que o sistema reconheça o novo dispositivo
+    sleep 3
+
+    # Verifica se o dispositivo HDMI está conectado
+    if pactl list sinks | grep -q "hdmi-stereo"; then
+      # Altera a saída de áudio para o dispositivo HDMI
+      pactl set-default-sink "hdmi-stereo"
+    else
+      # Altera a saída de áudio para o dispositivo padrão
+      pactl set-default-sink "$DEFAULT_SINK"
+    fi
+  fi
+done
+    

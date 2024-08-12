@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+size=$(df -h / | awk ' /[0-9]/ {print $3 "/" $2}')
+
+echo " $size"

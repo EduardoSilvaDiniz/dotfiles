@@ -1,0 +1,35 @@
+--- "Original suckless/dwmblocks/blocks.def.h"	2024-08-12 12:21:51.475629160 -0300
++++ dwmblocks/blocks.def.h	2024-08-12 12:02:18.821074654 -0300
+@@ -1,11 +1,29 @@
+ //Modify this file to change what commands output to your statusbar, and recompile using the make command.
+ static const Block blocks[] = {
+ 	/*Icon*/	/*Command*/		/*Update Interval*/	/*Update Signal*/
+-	{"Mem:", "free -h | awk '/^Mem/ { print $3\"/\"$2 }' | sed s/i//g",	30,		0},
+ 
+-	{"", "date '+%b %d (%a) %I:%M%p'",					5,		0},
++//	{" ", 	"~/.config/suckless/scripts/pacupdate",		3600,	10},
++
++	{"", 	"~/.config/suckless/scripts/battery",		30,		0},
++
++	{"", 	"~/.config/suckless/scripts/brightness",	1,		0},
++
++//	{" ", 	"~/.config/suckless/scripts/weather",		3600,	0},
++
++	{" ", 	"~/.config/suckless/scripts/volume",		1,		0},
++
++	{" ", 	"~/.config/suckless/scripts/ram",			5,		0},
++	
++//	{" ", 	"~/.config/suckless/scripts/cpu",			5,		0},
++
++	{"", 	"~/.config/suckless/scripts/disk",		    3600,	0},
++
++    {" ", 	"~/.config/suckless/scripts/upt",		    1,      0},
++
++	{" ", 	"~/.config/suckless/scripts/date",			30,		0},
++
+ };
+ 
+-//sets delimiter between status commands. NULL character ('\0') means no delimiter.
++//sets delimeter between status commands. NULL character ('\0') means no delimeter.
+ static char delim[] = " | ";
+ static unsigned int delimLen = 5;

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+shutdown=" Shutdown"
+reboot=" Reboot"
+logout=" Logout"
+dmenufont="monospace:size=11"
+normbgcolor="#282828"
+normbordercolor="#504945"
+normfgcolor="#ebdbb2"
+selfgcolor="#282828"
+selbordercolor="#d79921"
+selbgcolor="#d79921"
+
+# Variable passed to rofi
+options="$shutdown\n$reboot\n$logout"
+
+chosen="$(echo -e "$options" | dmenu -fn $dmenufont -nb $normbgcolor -nf $normfgcolor -sb $selbgcolor -sf $selfgcolor)"
+case $chosen in
+    $shutdown)
+        sudo shutdown -h now
+	;;
+    $reboot)
+        sudo shutdown -r now
+        ;;
+    $logout)
+        pkill -KILL -u $USER
+        ;;
+esac

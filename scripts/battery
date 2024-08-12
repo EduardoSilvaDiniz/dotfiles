@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# teste para saber se esta sendo carregado ou não
+bat_charging=$( acpi -b | grep -c "Charging")
+
+# pegando a porcem. da bateria
+bat_level=$(acpi -b | grep -P -o '[0-9]+(?=%)')
+
+# Teste da porcem. da bateria e troca o icode de acordo com a porcem. da bateria
+if   [[ $bat_level -ge 90 ]]; then
+        status="  $bat_level%" # bateria entre 90 - 100 porcem.
+elif [[ $bat_level -ge 75 ]] || [[ $bat_level -gt 50 ]]; then
+        status="  $bat_level%" # bateria entre 75 - 90 porcem.
+elif [[ $bat_level -ge 50 ]] || [[ $bat_level -gt 30 ]]; then
+        status="  $bat_level%" # bateria entre 50 - 75 porcem
+elif [[ $bat_level -ge 30 ]] || [[ $bat_level -gt 15 ]]; then
+        status="  $bat_level%" # bateria entre 20 - 50 porcem.
+elif [[ $bat_level -le 15 ]]; then
+        status="  $bat_level%" # bateria abaixo de 5 porcem.
+fi
+
+# Teste para saber se o notbook esta sendo carregado ou não
+if [[ $bat_charging -gt 0 ]]; then
+    status=" $status" # caso sim vai ser adicionado um icode de raio ao lado
+fi
+
+# mostra o resultado
+echo $status

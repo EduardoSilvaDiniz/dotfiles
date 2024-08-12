@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+bright=$(brightnessctl | grep brightness | awk '{print $4}' | sed 's|[(),]||g')
+screen=$(xrandr | grep -c "HDMI-A-0 disconnected")
+
+if [ $screen -eq 1 ]
+then
+    echo " $bright"
+fi

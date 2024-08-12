@@ -1,0 +1,5 @@
+dwm-autostart-20210120-cb3f58a.diff
+dwm-fullgaps-20200508-7b77734.diff
+dwm-movestack-6.1.diff
+dwm-warp-6.2.diff
+
