@@ -1,0 +1,708 @@
+#+title: Emacs do Zero
+#+author: Eduardo Silva
+
+* Preparação
+
+- Instalar o Emacs
+- Criar arquivo =~/.config/emacs/init.el=
+- Criar o arquivo =~/.config/emacs/config.org=
+
+** Conteúdo de =init.el=
+
+#+begin_example
+(org-babel-load-file
+ (expand-file-name "config.org" user-emacs-directory))
+#+end_example
+
+* Configurações gerais
+** Desabilitar tela de inicio (scratch)
+
+#+begin_src emacs-lisp
+  (setq inhibit-startup-message t)
+#+end_src
+
+** Configuração da interface (UI)
+#+begin_src emacs-lisp
+  (menu-bar-mode -1)                      ; no menu bar
+  (tool-bar-mode -1)                      ; no tools bar
+  (scroll-bar-mode -1)                    ; no scroll bars
+  (set-fringe-mode 10)                    ; frame edges set to 10px
+  (column-number-mode 1)                  ; absolute numbering
+  (recentf-mode 1)                        ; remember recent files
+  (save-place-mode 1)                     ; remember cursor position
+  (savehist-mode 1)                       ; enable history saving
+  (delete-selection-mode t)               ; overwrite selected text when typing
+  (global-hl-line-mode 1)                 ; enable current line highlight
+  (global-visual-line-mode t)             ; visual line breaking
+  (global-auto-revert-mode 1)             ; update externaly edited files
+  (global-display-line-numbers-mode 1)    ; always show line numbers
+#+end_src
+
+** Numeração de linhas
+#+begin_src emacs-lisp
+  (global-display-line-numbers-mode 1)
+  (setq display-line-numbers-type 'relative) 
+  (dolist (mode '(org-mode-hook
+                  vterm-mode-hook
+                  term-mode-hook
+                  shell-mode-hook
+                  eshell-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+#+end_src
+** Usar espaços em vez de tabulações
+#+begin_src emacs-lisp
+  (setq-default indent-tabs-mode nil)
+#+end_src
+** Deletar texto selecionado ao digitar
+#+begin_src emacs-lisp
+  (delete-selection-mode t)
+#+end_src
+** Destaque da linha corrente
+#+begin_src emacs-lisp
+  (global-hl-line-mode 1)
+#+end_src
+** Quebra de linha visual
+#+begin_src emacs-lisp
+  (global-visual-line-mode t)
+#+end_src
+** Carregar alterações externas
+#+begin_src emacs-lisp
+  (global-auto-revert-mode t)
+#+end_src
+** Prompt de confirmação
+#+begin_src emacs-lisp
+  (fset 'yes-or-no-p 'y-or-n-p) ;
+#+end_src
+** Habilita o fechamento de pares
+#+begin_src emacs-lisp
+  (electric-pair-mode 1)
+#+end_src
+** Sai do minibuffer com ESC
+#+begin_src emacs-lisp
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+#+end_src
+** Atalhos para zoom
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-=") 'text-scale-increase) 
+  (global-set-key (kbd "C--") 'text-scale-decrease)
+#+end_src
+** Configuração do package
+
+#+begin_src emacs-lisp
+  (require 'package)
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+  			 ("elpa" . "https://elpa.gnu.org/packages/")))
+  (package-initialize)
+  (unless package-archive-contents
+    (package-refresh-contents))
+#+end_src
+
+#+RESULTS:
+
+** Configuração do use-package
+
+#+begin_src emacs-lisp
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+(require 'use-package)
+(setq use-package-always-ensure t)
+(setq package-enable-at-startup nil)
+#+end_src
+
+** Mudar o shell
+#+begin_src emacs-lisp
+;(setq explicit-shell-file-name "/run/current-system/sw/bin/zsh")
+;(setq shell-file-name "/run/current-system/sw/bin/zsh")
+;(setq projectile-indexing-method 'native)
+(setq explicit-shell-file-name "bash")
+(setq shell-file-name "bash")
+(setenv "PATH" (concat (getenv "PATH") ":/run/current-system/sw/bin/"))
+(setq exec-path (append exec-path '("/run/current-system/sw/bin/")))
+#+end_src
+
+** Rolagem suave 
+#+begin_src emacs-lisp
+(setq mouse-wheel-scroll-amount '(2 ((shift) . 1))
+                                    mouse-wheel-progressive-speed nil
+                                    mouse-wheel-follow-mouse 't
+                                    scroll-step 1)
+
+#+end_src
+
+* Sistema
+** Backup
+#+begin_src emacs-lisp
+  (setq backup-directory-alist '((".*" . "~/.local/share/Trash/files")))
+#+end_src
+** Custom Settings
+#+begin_src emacs-lisp
+  (setq custom-file (locate-user-emacs-file "custom.el"))
+  (load custom-file 'noerror 'nomessage)
+#+end_src
+** Fontes
+#+begin_src emacs-lisp
+  ;(set-face-attribute 'default nil :font "JetBrainsMonoNL NF Thin 13")
+  ;(set-face-attribute 'variable-pitch nil :font "JetBrainsMonoNL NF Thin 13")
+  ;(set-face-attribute 'fixed-pitch nil :font "JetBrainsMonoNL NF Thin 13")
+#+end_src
+** Funções
+*** Abrir diretório de configurações pessoais
+#+begin_src emacs-lisp
+  (defun edu/emacs-personal-files ()
+    (interactive)
+    (let ((default-directory "~/.config/emacs/"))
+      (call-interactively 'find-file)))
+#+end_src
+*** Recarga das configurações
+#+begin_src emacs-lisp
+  (defun edu/reload-settings ()
+    (interactive)
+    (load-file "~/.config/emacs/init.el"))
+#+end_src
+* Gerencimando de Pacotes
+** straight
+#+begin_src emacs-lisp
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+#+end_src
+** eglot
+#+begin_src emacs-lisp
+(use-package eglot
+  :hook   ((( clojure-mode clojurec-mode clojurescript-mode
+              java-mode scala-mode c-mode c++-mode)
+            . eglot-ensure)
+           ((cider-mode eglot-managed-mode) . eglot-disable-in-cider))
+  :custom
+  (eglot-autoshutdown t)
+  (eglot-events-buffer-size 0))
+#+end_src
+** eglot-booter
+#+begin_src emacs-lisp
+(use-package eglot-booster
+  :straight
+  (eglot-booster :type git :host github :repo "jdtsmith/eglot-booster")
+  :after eglot
+  :config (eglot-booster-mode))
+#+end_src
+** Evil Mode
+#+begin_src emacs-lisp
+  (use-package evil
+    :init
+    (setq evil-want-integration t
+          evil-want-keybinding nil
+          evil-vsplit-window-right t
+          evil-split-window-below t
+          evil-undo-system 'undo-redo)
+    (evil-mode))
+
+(use-package evil-collection
+  :after evil
+  :config
+  (add-to-list 'evil-collection-mode-list 'help) ;; evilify help mode
+  (evil-collection-init))
+#+end_src
+
+** Rainbow Mode
+#+begin_src emacs-lisp
+  (use-package rainbow-mode
+  :diminish
+  :hook org-mode prog-mode)
+#+end_src
+
+** Vertico
+#+begin_src emacs-lisp
+  (use-package vertico
+    :bind (:map vertico-map
+                ("C-j" . vertico-next)
+                ("C-k" . vertico-previous)
+                ("C-f" . vertico-exit)
+                :map minibuffer-local-map
+                ("M-h" . backward-kill-word))
+    :custom
+    (vertico-cycle t)
+    :init
+    (vertico-mode))
+#+end_src
+
+** Marginalia
+#+begin_src emacs-lisp
+  (use-package marginalia
+    :init (marginalia-mode))
+#+end_src
+
+** Orderless
+#+begin_src emacs-lisp
+  (use-package orderless
+    :config
+    (setq completion-styles '(orderless basic)))
+#+end_src
+
+** Consult
+#+begin_src emacs-lisp
+  (use-package consult
+    :bind (("C-s" . 'consult-line)
+           ("C-x b" . 'consult-buffer)))
+           ;("C-z /" . 'consult-outline) desativado pois não ah prefix C-z
+           ;("C-z f g" . 'consult-grep)))
+#+end_src
+
+** Which Key
+#+begin_src emacs-lisp
+  (use-package which-key
+    :init (which-key-mode)
+    :diminish which-key-mode
+    :config
+    (setq which-key-idle-delay 0)
+    (setq which-key-show-early-onC-h t))
+#+end_src
+
+** Modus Themes
+#+begin_src emacs-lisp
+  (use-package modus-themes)
+  (setq modus-themes-mode-line '(accented borderless)
+        modus-themes-region '(bg-only)
+        modus-themes-paren-match '(bold intense underline)
+        modus-themes-headings '((t . (rainbow bold)))
+        modus-themes-org-blocks 'gray-background)
+#+end_src
+** Doom Themes
+#+begin_src emacs-lisp
+  (use-package doom-themes
+    :config (setq doom-themes-enable-bold t
+                  doom-themes-enable-italic t)
+    (doom-themes-visual-bell-config)
+    (doom-themes-org-config)
+    (load-theme 'doom-palenight t))
+#+end_src
+** Doom modeline
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+    :ensure t
+    :hook
+    (after-init . doom-modeline-mode)
+    :custom
+    (doom-modeline-height 30)
+    (set-face-attribute 'mode-line nil :font "Inconsolata" :height 100)
+    (set-face-attribute 'mode-line-inactive nil :font "Inconsolata" :height 100)
+    :config
+    (setq doom-modeline-enable-word-count t))
+#+end_src
+** Diminish
+#+begin_src emacs-lisp
+  (use-package diminish)
+  (diminish 'visual-line-mode "")
+  (diminish 'eldoc-mode "")
+  (diminish 'flyspell-mode "Spell")
+#+end_src
+** autocomplete
+company default
+#+begin_src emacs-lisp
+  ;(use-package company
+  ;  :diminish company-mode
+  ;  :custom
+  ;  (company-begin-commands '(self-insert-command))
+  ;  (company-idle-delay .1)
+  ;  (company-minimum-prefix-length 2)
+  ;  (company-show-numbers t)
+  ;  (company-tooltip-align-annotations t)
+  ;  :hook (after-init . global-company-mode))
+#+end_src
+testando fussy + company
+#+begin_src emacs-lisp
+;(use-package fussy
+;  :straight
+;  (fussy :type git :host github :repo "jojojames/fussy")
+;  :config
+;  (setq fussy-filter-fn 'fussy-filter-default)
+;  (setq fussy-use-cache t)
+;  (setq fussy-compare-same-score-fn 'fussy-histlen->strlen<)
+;
+;  (push 'fussy completion-styles)
+;  (setq
+;   ;; For example, project-find-file uses 'project-files which uses
+;   ;; substring completion by default. Set to nil to make sure it's using
+;   ;; flx.
+;   completion-category-defaults nil
+;   completion-category-overrides nil)
+;
+;  ;; `eglot' defaults to flex, so set an override to point to flx instead.
+;  (with-eval-after-load 'eglot
+;    (add-to-list 'completion-category-overrides
+;                 '(eglot (styles fussy basic)))))
+;
+;(use-package company
+;  :config
+;  (defun j-company-capf (f &rest args)
+;    "Manage `completion-styles'."
+;    (if (length= company-prefix 0)
+;        ;; Don't use `company' for 0 length prefixes.
+;        (let ((completion-styles (remq 'fussy completion-styles)))
+;          (apply f args))
+;      (let ((fussy-max-candidate-limit 5000)
+;            (fussy-default-regex-fn 'fussy-pattern-first-letter)
+;            (fussy-prefer-prefix nil))
+;        (apply f args))))
+;
+;  (defun j-company-transformers (f &rest args)
+;    "Manage `company-transformers'."
+;    (if (length= company-prefix 0)
+;        ;; Don't use `company' for 0 length prefixes.
+;        (apply f args)
+;      (let ((company-transformers '(fussy-company-sort-by-completion-score)))
+;        (apply f args))))
+;
+;  (advice-add 'company-auto-begin :before 'fussy-wipe-cache)
+;  (advice-add 'company--transform-candidates :around 'j-company-transformers)
+;  (advice-add 'company-capf :around 'j-company-capf)
+;
+;  (global-company-mode))
+#+end_src
+corfu
+#+begin_src emacs-lisp
+(use-package corfu
+  :ensure t
+
+  :straight (corfu :files (:defaults "extensions/*")
+                   :includes corfu-popupinfo)
+
+  :custom
+  (corfu-auto t)
+  (corfu-auto-prefix 1)
+  (corfu-auto-delay 0)
+  (corfu-quit-no-match 'separator)
+
+  :config
+  (setq completion-cycle-threshold 3)
+  (setq tab-always-indent 'complete)
+  (global-corfu-mode)
+  (corfu-popupinfo-mode)
+  :bind
+  (:map corfu-map
+        ("TAB" . corfu-insert)
+        ([tab] . corfu-insert)
+        ("S-TAB" . corfu-previous)
+        ([backtab] . corfu-previous))
+
+  :init
+  (global-corfu-mode))
+
+
+(use-package cape
+  :straight t
+  :ensure t
+  :config
+  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
+
+(use-package kind-icon
+  :straight t
+  :ensure t
+  :after corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+;; Configure Tempel
+(use-package tempel
+  ;; Require trigger prefix before template name when completing.
+  ;; :custom
+  ;; (tempel-trigger-prefix "<")
+
+  :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
+         ("M-*" . tempel-insert))
+
+  :init
+
+  ;; Setup completion at point
+  (defun tempel-setup-capf ()
+    ;; Add the Tempel Capf to `completion-at-point-functions'.
+    ;; `tempel-expand' only triggers on exact matches. Alternatively use
+    ;; `tempel-complete' if you want to see all matches, but then you
+    ;; should also configure `tempel-trigger-prefix', such that Tempel
+    ;; does not trigger too often when you don't expect it. NOTE: We add
+    ;; `tempel-expand' *before* the main programming mode Capf, such
+    ;; that it will be tried first.
+    (setq-local completion-at-point-functions
+                (cons #'tempel-expand
+                      completion-at-point-functions)))
+
+  (add-hook 'conf-mode-hook 'tempel-setup-capf)
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+
+  ;; Optionally make the Tempel templates available to Abbrev,
+  ;; either locally or globally. `expand-abbrev' is bound to C-x '.
+  ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
+  ;; (global-tempel-abbrev-mode)
+)
+
+;; Optional: Add tempel-collection.
+;; The package is young and doesn't have comprehensive coverage.
+(use-package tempel-collection)
+#+end_src
+** General
+#+begin_src emacs-lisp
+(use-package general
+  :config
+  (general-evil-setup)
+  ;; set up 'SPC' as the global leader key
+  (general-create-definer edu/leader-keys
+    :states '(normal insert visual emacs)
+    :keymaps 'override
+    :prefix "SPC" ;; set leader
+    :global-prefix "M-SPC") ;; access leader in insert mode
+
+  (edu/leader-keys
+    "TAB TAB" '(comment-line :wk "Comment lines")) 
+
+  ;; Buffer/bookmarks
+  (edu/leader-keys
+    "b" '(:ignore t :wk "Buffers/Bookmarks")
+    "b b" '(switch-to-buffer :wk "Switch to buffer")
+    "b i" '(ibuffer :wk "Ibuffer")
+    "b k" '(kill-current-buffer :wk "Kill current buffer")
+    "b s" '(basic-save-buffer :wk "Save buffer")
+    "b l" '(list-bookmarks :wk "List bookmarks")
+    "b m" '(bookmark-set :wk "Set bookmark")
+    "q q" '(save-buffers-kill-terminal :wk "Quit emacs"))
+
+  ;; Files
+  (edu/leader-keys
+    "f" '(:ignore t :wk "Files")
+    "f f" '(find-file :wk "Find file")
+    "f s" '(evil-save :wk "Save file")
+    "f p" '(edu/emacs-personal-files :wk "Open personal config files")
+    "f c" '(edu/open-emacs-config :wk "Open emacs config.org"))
+
+  ;; search 
+  (edu/leader-keys
+    "s" '(:ignore t :wk "Search")
+    "s d" '(edu/open-emacs-config :wk "Open emacs config.org"))
+
+  ;; project 
+  (edu/leader-keys
+    "p" '(:ignore t :wk "project")
+    "p p" '(project-switch-project :wk "Reload emacs settings"))
+
+  ;; Helpers
+  (edu/leader-keys
+    "h" '(:ignore t :wk "Helpers")
+    "h r r" '(edu/reaload-settings :wk "Reload emacs settings")))
+#+end_src
+** Org Mode
+#+begin_src emacs-lisp
+  (require 'org-tempo)
+#+end_src
+** Rainbow Delimiters
+#+begin_src emacs-lisp
+(use-package rainbow-delimiters)
+(add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+#+end_src
+** Rainbow Mode
+#+begin_src emacs-lisp
+  (use-package rainbow-mode
+  :diminish
+  :hook org-mode prog-mode)
+#+end_src
+** Magit
+#+begin_src emacs-lisp
+  (use-package magit)
+#+end_src
+** meow
+#+begin_src emacs-lisp
+(use-package meow)
+
+(defun meow-setup ()
+  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+  (meow-motion-overwrite-define-key
+   '("j" . meow-next)
+   '("k" . meow-prev)
+   '("<escape>" . ignore))
+  (meow-leader-define-key
+   ;; SPC j/k will run the original command in MOTION state.
+   '("j" . "H-j")
+   '("k" . "H-k")
+   
+   ;; Use SPC (0-9) for digit arguments.
+   '("1" . meow-digit-argument)
+   '("2" . meow-digit-argument)
+   '("3" . meow-digit-argument)
+   '("4" . meow-digit-argument)
+   '("5" . meow-digit-argument)
+   '("6" . meow-digit-argument)
+   '("7" . meow-digit-argument)
+   '("8" . meow-digit-argument)
+   '("9" . meow-digit-argument)
+   '("0" . meow-digit-argument)
+   '("/" . meow-keypad-describe-key)
+   '("?" . meow-cheatsheet))
+  (meow-normal-define-key
+   '("0" . meow-expand-0)
+   '("9" . meow-expand-9)
+   '("8" . meow-expand-8)
+   '("7" . meow-expand-7)
+   '("6" . meow-expand-6)
+   '("5" . meow-expand-5)
+   '("4" . meow-expand-4)
+   '("3" . meow-expand-3)
+   '("2" . meow-expand-2)
+   '("1" . meow-expand-1)
+   '("-" . negative-argument)
+   '(";" . meow-reverse)
+   '("," . meow-inner-of-thing)
+   '("." . meow-bounds-of-thing)
+   '("[" . meow-beginning-of-thing)
+   '("]" . meow-end-of-thing)
+   '("a" . meow-append)
+   '("A" . meow-open-below)
+   '("b" . meow-back-word)
+   '("B" . meow-back-symbol)
+   '("c" . meow-change)
+   '("d" . meow-delete)
+   '("D" . meow-backward-delete)
+   '("e" . meow-next-word)
+   '("E" . meow-next-symbol)
+   '("f" . meow-find)
+   '("g" . meow-cancel-selection)
+   '("G" . meow-grab)
+   '("h" . meow-left)
+   '("H" . meow-left-expand)
+   '("i" . meow-insert)
+   '("I" . meow-open-above)
+   '("j" . meow-next)
+   '("J" . meow-next-expand)
+   '("k" . meow-prev)
+   '("K" . meow-prev-expand)
+   '("l" . meow-right)
+   '("L" . meow-right-expand)
+   '("m" . meow-join)
+   '("n" . meow-search)
+   '("o" . meow-block)
+   '("O" . meow-to-block)
+   '("p" . meow-yank)
+   '("q" . meow-quit)
+   '("Q" . meow-goto-line)
+   '("r" . meow-replace)
+   '("R" . meow-swap-grab)
+   '("s" . meow-kill)
+   '("t" . meow-till)
+   '("u" . meow-undo)
+   '("U" . meow-undo-in-selection)
+   '("v" . meow-visit)
+   '("w" . meow-mark-word)
+   '("W" . meow-mark-symbol)
+   '("x" . meow-line)
+   '("X" . meow-goto-line)
+   '("y" . meow-save)
+   '("Y" . meow-sync-grab)
+   '("z" . meow-pop-selection)
+   '("'" . repeat)
+   '("<escape>" . ignore)))
+   ;(require 'meow)
+   ;(meow-setup)
+   ;(meow-global-mode 1)
+#+end_src
+** Org Mode
+*** Correção para fechamento de pares
+Evitar completar ~<>~ em org-mode para não atrapalhar os snippets
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook (lambda ()
+                           (setq-local electric-pair-inhibit-predicate
+                                       `(lambda (c)
+                                          (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
+#+end_src
+*** Endentação de blocos
+#+begin_src emacs-lisp
+(setq org-edit-src-content-indentation 0) ; Zera a margem dos blocos
+(electric-indent-mode -1)                 ; Desliga a indentação automática
+#+end_src
+*** Templates de blocos
+#+begin_src emacs-lisp
+(require 'org-tempo)
+#+end_src
+*** Org Bullets
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook 'org-indent-mode)
+(use-package org-bullets
+:custom
+(org-bullets-bullet-list '("▶" "▷" "◆" "◇" "▪" "▪" "▪"))) 
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+#+end_src
+** Vterm
+#+begin_src emacs-lisp
+(use-package vterm
+  :config
+  (setq shell-file-name "bash"
+        vterm-max-scrollback 5000))
+#+end_src
+** Flycheck
+#+begin_src emacs-lisp
+(use-package flycheck
+  :config (setq flycheck-idle-change-delay 0)
+  :hook (prog-mode-hook . flycheck-mode))
+#+end_src
+** Projectile
+#+begin_src emacs-lisp
+(use-package projectile
+  :diminish projectile-mode
+  :config
+  (projectile-mode))
+#+end_src
+** Linguagens
+*** Web mode
+#+begin_src emacs-lisp
+(use-package web-mode
+  :mode ("\\.phtml\\.tpl\\.html\\.twig\\.html?\\'" . web-mode))
+#+end_src
+*** Markdown mode
+#+begin_src emacs-lisp
+(use-package markdown-mode
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . gfm-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "pandoc"))
+#+end_src
+*** Dart mode
+#+begin_src emacs-lisp
+;(use-package dart-mode)
+;(add-hook 'dart-mode-hook 'eglot-ensure)
+#+end_src
+*** java mode
+#+begin_src emacs-lisp
+(use-package eglot-java)
+(add-hook 'java-mode-hook 'eglot-java-mode)
+(with-eval-after-load 'eglot-java
+  (define-key eglot-java-mode-map (kbd "C-c l n") #'eglot-java-file-new)
+  (define-key eglot-java-mode-map (kbd "C-c l x") #'eglot-java-run-main)
+  (define-key eglot-java-mode-map (kbd "C-c l t") #'eglot-java-run-test)
+  (define-key eglot-java-mode-map (kbd "C-c l N") #'eglot-java-project-new)
+  (define-key eglot-java-mode-map (kbd "C-c l T") #'eglot-java-project-build-task)
+  (define-key eglot-java-mode-map (kbd "C-c l R") #'eglot-java-project-build-refresh))
+#+end_src
+** editorconfig
+#+begin_src emacs-lisp
+(use-package editorconfig
+  :ensure t
+  :config
+  (editorconfig-mode 1))
+#+end_src
+
+** lsp
+#+begin_src emacs-lisp
+(setq gc-cons-threshold 100000000)
+(setenv "LSP_USE_PLISTS" "true")
+(use-package lsp-mode)
+(setq lsp-idle-delay 0.500)
+#+end_src
