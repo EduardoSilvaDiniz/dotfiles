@@ -1,0 +1,6 @@
+- name: configurações pessoais para gnome
+  hosts: localhost
+
+  tasks:
+    - name: criando tecla de atalho para terminal (alt + enter)
+      command: dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal/binding "'<Alt>Return'" && dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal/command "'footclient'" && dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal/name "'Terminal'" && dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal/']"

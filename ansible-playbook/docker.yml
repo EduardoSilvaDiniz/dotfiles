@@ -1,0 +1,46 @@
+- name: instala docker no fedora
+  hosts: localhost
+  become: yes
+
+  tasks:
+    - name: Obter valor de $USER
+      set_fact:
+        user_name: "{{ lookup('env', 'USER') }}"
+
+    - name: instalando dnf-plugins-core
+      package:
+        name: dnf-plugins-core
+        state: present
+
+    - name: Adicionando repositório Docker
+      command: sudo dnf config-manager addrepo --from-repofile="https://download.docker.com/linux/fedora/docker-ce.repo"
+
+    - name: Instalando Docker CE, Docker CLI e containerd
+      package:
+        name: 
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    - name: Garantindo que o grupo docker exista
+      group:
+        name: docker
+        state: present
+
+    - name: Adicionando usuário ao grupo docker
+      user:
+        name: "{{ user_name }}"
+        groups: docker
+        append: yes
+
+    - name: Ativando e iniciando o serviço Docker
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Mensagem informativa
+      debug:
+        msg: 
+        - "Você precisa sair e entrar novamente (ou reiniciar o daemon do Docker e usar o comando newgrp conforme mencionado aqui) para que essas alterações tenham efeito. Depois, você pode verificar se suas alterações foram bem-sucedidas ao rodar o Docker sem o sudo."

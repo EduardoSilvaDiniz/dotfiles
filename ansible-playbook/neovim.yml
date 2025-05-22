@@ -1,0 +1,112 @@
+- name: instala neovim e suas dependencias + foot
+  hosts: localhost
+  become: yes
+  vars:
+    file_zip: "/tmp/AdwaitaMono.zip"
+
+  tasks:
+    - name: Obter valor de $USER
+      set_fact:
+        user_home: "{{ lookup('env', 'HOME') }}"
+
+    - name: instalando neovim e suas dependencias + golang, rust, nodejs, foot terminal
+      package:
+        name:
+          - fzf
+          - chafa
+          - luarocks
+          - lua
+          - gcc
+          - make
+          - unzip
+          - wget
+          - curl
+          - gzip
+          - tar
+          - fd-find
+          - ripgrep
+          - neovim
+          - foot
+          - golang
+          - nodejs
+          - rust
+          - rustup
+          - cargo
+        state: present
+      name: instalando openssl
+      package:
+        name:
+          - openssl-devel 
+          - pkg-config
+          - ImageMagick-devel
+      when: ansible_distribution == "Fedora"
+
+      name: instalando openssl
+      package:
+        name:
+          - openssl 
+          - pkg-config
+          - imagemagick
+      when: ansible_distribution == "Arch linux"
+
+      name: instalando openssl
+      package:
+        name:
+          - libssl-dev 
+          - pkg-config
+          - libmagickwand-dev
+      when: ansible_distribution == "Debian"
+
+      name: instalando openssl
+      package:
+        name:
+          - libssl-dev 
+          - pkg-config
+          - libmagickwand-dev
+      when: ansible_distribution == "Ubuntu"
+
+    - name: ativando repositorio atim/lazygit
+      command: dnf copr enable atim/lazygit -y
+      when: ansible_distribution == "Fedora"
+
+    - name: instalando lazygit
+      package:
+        name: lazygit
+        state: present
+
+    ## TODO está com erro de autenticação, troca para https funciona mas
+    ## depois precisa adiciona o remote repo ssh 
+    # - name: clonando repositorio EduardoSilvaDiniz/neovim-from-scratch
+    #   git:
+    #     repo: "git@github.com:EduardoSilvaDiniz/neovim-from-scratch.git"
+    #     dest: "{{ user_home }}/.config/nvim"
+    #     version: master
+
+    - name: baixando fonte adwaita com path do nerd font
+      get_url: 
+        url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/AdwaitaMono.zip"
+        dest: "{{ file_zip }}"
+        mode: '0644'
+
+    - name: Criando diretorio {{ user_home }}/.local/share/fonts
+      file:
+        path: "{{ user_home }}/.local/share/fonts"
+        state: directory
+        mode: '0755'
+
+    - name: extraindo AdwaitaMono.zip em {{ user_home }}
+      unarchive:
+        src: "{{ file_zip }}"
+        dest: "{{ user_home }}/.local/share/fonts"
+        remote_src: yes
+
+    - name: apagando /tmp/AdwaitaMono.zip
+      file:
+        path: "{{ file_zip }}"
+        state: absent
+
+    - name: Atualizar o cache de fontes
+      command: fc-cache -fv
+
+    - name: Habilita foot-server
+      command: systemctl --user --now enable foot-server
