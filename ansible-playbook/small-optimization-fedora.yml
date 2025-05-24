@@ -1,0 +1,7 @@
+- name: pequenas otimizações no fedora
+  hosts: localhost
+  become: yes
+
+  tasks:
+    - name: desativando cups
+      command: systemctl disable cups

@@ -1,0 +1,46 @@
+---
+- name: Configurar suporte VA-API com NVIDIA no Fedora
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Instalar ffmpeg-free
+      dnf:
+        name: ffmpeg-free
+        state: present
+
+    - name: Instalar libavcodec-freeworld do RPM Fusion
+      dnf:
+        name: libavcodec-freeworld
+        state: present
+
+    - name: Instalar nvidia-vaapi-driver do RPM Fusion nonfree
+      dnf:
+        name: nvidia-vaapi-driver
+        state: present
+
+    - name: Remover libva-vdpau-driver se instalado (velho e quebrado)
+      dnf:
+        name: libva-vdpau-driver
+        state: absent
+
+    - name: Criar script para iniciar o Firefox com variáveis VA-API
+      copy:
+        dest: /usr/local/bin/firefox-vaapi
+        mode: '0755'
+        content: |
+          #!/bin/bash
+          export NVD_BACKEND=d
+          export MOZ_DISABLE_RDD_SANDBOX=1
+          firefox "$@"
+
+    - name: Exibir instruções para configurar Firefox (about:config)
+      debug:
+        msg: |
+          🔧 Manual step required:
+          1. Abra o Firefox.
+          2. Vá para `about:config`.
+          3. Procure por `media.ffmpeg.vaapi.enabled` e defina como `true`.
+
+          Depois, use o script criado com:
+          $ firefox-vaapi
+

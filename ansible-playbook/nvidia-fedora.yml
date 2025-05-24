@@ -1,0 +1,50 @@
+- name: Ativação de chave para Secure Boot e instalação do driver NVIDIA (Fedora 41+)
+  hosts: localhost
+  become: yes
+  gather_facts: true  #
+
+  tasks:
+    - name: Ativando repositório RPM Fusion (Free e Non-Free)
+      command: >
+        dnf install -y 
+        https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm
+        https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm
+      when: ansible_distribution == "Fedora"
+
+    - name: Ativando repositório openh264
+      command: dnf config-manager --set-enabled fedora-cisco-openh264
+      when: ansible_distribution == "Fedora"
+
+    - name: Instalando pacotes necessários para gerar uma chave
+      package:
+        name:
+          - kmodtool
+          - akmods
+          - mokutil
+          - openssl
+        state: present
+
+    - name: Gerando chave
+      command: kmodgenca -a --force
+      args:
+        creates: /etc/pki/akmods/certs/public_key.der  #
+
+    - name: Importando chave com o MOK
+      command: mokutil --import /etc/pki/akmods/certs/public_key.der
+      register: mokutil_output
+      ignore_errors: yes  #
+      changed_when: "'successfully' in mokutil_output.stdout.lower()"
+
+    - name: Instalando driver NVIDIA
+      package:
+        name:
+          - akmod-nvidia
+          - xorg-x11-drv-nvidia-cuda
+        state: present
+
+    - name: Mensagem informativa
+      debug:
+        msg: >
+          Reinicie agora. Você verá uma tela solicitando a inscrição da chave.
+          Escolha importar a chave gerada anteriormente e insira a senha definida.
+
