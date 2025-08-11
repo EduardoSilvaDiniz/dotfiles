@@ -9,7 +9,7 @@
       set_fact:
         user_home: "{{ lookup('env', 'HOME') }}"
 
-    - name: instalando neovim e suas dependencias + golang, rust, nodejs, foot terminal
+    - name: instalando neovim + depedencias (fedora)
       package:
         name:
           - fzf
@@ -33,6 +33,37 @@
           - rustup
           - cargo
         state: present
+      when: ansible_facts['distribution'] == "Fedora"
+
+    - name: instalando neovim + depedencias (openSUSE Tumbleweed)
+      package:
+        name:
+          - cmake
+          - lua51-luarocks
+          - fzf
+          - chafa
+          - viu
+          - ueberzugpp
+          - gcc
+          - make
+          - unzip
+          - wget
+          - curl
+          - gzip
+          - tar
+          - fd
+          - ripgrep
+          - tree-sitter
+          - neovim
+          - foot
+          - go
+          - cargo
+          - java-21-openjdk-devel
+          - java-21-openjdk-javadoc
+          - java-21-openjdk-jmods
+        state: present
+      when: ansible_facts['distribution'] == "openSUSE Tumbleweed"
+
       name: instalando openssl
       package:
         name:
@@ -82,9 +113,9 @@
     #     dest: "{{ user_home }}/.config/nvim"
     #     version: master
 
-    - name: baixando fonte adwaita com path do nerd font
+    - name: baixando fonte cascadiaCode (nerd-fonts)
       get_url: 
-        url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/AdwaitaMono.zip"
+        url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/CascadiaCode.zip"
         dest: "{{ file_zip }}"
         mode: '0644'
 
@@ -94,7 +125,7 @@
         state: directory
         mode: '0755'
 
-    - name: extraindo AdwaitaMono.zip em {{ user_home }}
+    - name: extraindo em {{ user_home }}
       unarchive:
         src: "{{ file_zip }}"
         dest: "{{ user_home }}/.local/share/fonts"
