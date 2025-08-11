@@ -1,0 +1,19 @@
+- name: pos instalação do openSUSE Tumbleweed
+  hosts: localhost
+  become: yes
+
+  tasks:
+    - name: pacotes essenciais
+      package:
+        name:
+          - fastfetch
+          - btop
+          - htop
+          - kwrite
+          - keepassxc
+          - libgthread-2_0-0
+          - filezilla
+          - git
+          - zsh
+        state: present
+      when: ansible_facts['distribution'] == "openSUSE Tumbleweed"
