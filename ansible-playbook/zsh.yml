@@ -1,0 +1,23 @@
+- name: Instalar Zsh e Oh My Zsh
+  hosts: all
+  become: yes
+  tasks:
+    - name: Garantir que o Zsh esteja instalado
+      package:
+        name:
+          - zsh
+          - curl
+        state: present
+
+    - name: Baixar e instalar Oh My Zsh
+      shell: |
+        if [ ! -d "$HOME/.oh-my-zsh" ]; then
+          sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+        fi
+      args:
+        creates: "$HOME/.oh-my-zsh"
+
+    - name: Definir Zsh como shell padrão
+      user:
+        name: "{{ ansible_user }}"
+        shell: /bin/zsh
