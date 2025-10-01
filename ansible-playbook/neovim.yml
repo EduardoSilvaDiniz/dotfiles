@@ -16,7 +16,6 @@
           - chafa
           - luarocks
           - lua
-          - gcc
           - make
           - unzip
           - wget
@@ -27,11 +26,13 @@
           - ripgrep
           - neovim
           - foot
+          - gcc
+          - gcc-c++
+          - clang
           - golang
           - nodejs
-          - rust
-          - rustup
-          - cargo
+          - java-latest-openjdk 
+          - java-latest-openjdk-devel
         state: present
       when: ansible_facts['distribution'] == "Fedora"
 
@@ -104,6 +105,17 @@
       package:
         name: lazygit
         state: present
+
+    - name: Instalando rustup
+      shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      args:
+        executable: /bin/bash
+
+    - name: Instalando Rust nightly
+      shell: . "$HOME/.cargo/env" && rustup toolchain install nightly
+      args:
+        executable: /bin/bash
+
 
     ## TODO está com erro de autenticação, troca para https funciona mas
     ## depois precisa adiciona o remote repo ssh 
