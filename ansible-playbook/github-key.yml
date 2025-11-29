@@ -1,7 +1,6 @@
 - name: adiciona e ativa ssh e gnupg
   hosts: localhost
   connection: local
-  become: true
 
   vars:
     user_home: "/home/{{ ansible_user_id }}"
@@ -27,24 +26,18 @@
       file:
         path: "{{ ssh_dest }}"
         state: directory
-        owner: "{{ ansible_user_id }}"
-        group: "{{ ansible_user_gid }}"
         mode: "0700"
       
     - name: Copiar arquivos da pasta .ssh para o usuário private
       copy:
         src: "{{ ssh_source }}/.ssh/id_ed25519"
         dest: "{{ ssh_dest }}/id_ed25519"
-        owner: "{{ ansible_user_id }}"
-        group: "{{ ansible_user_gid }}"
         mode: "0600"
 
     - name: Copiar arquivos da pasta .ssh para o usuário public
       copy:
         src: "{{ ssh_source }}/.ssh/id_ed25519.pub"
         dest: "{{ ssh_dest }}/id_ed25519.pub"
-        owner: "{{ ansible_user_id }}"
-        group: "{{ ansible_user_gid }}"
         mode: "0600"
 
     - name: Ajustar permissão da própria pasta .ssh
