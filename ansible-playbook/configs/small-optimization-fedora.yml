@@ -1,0 +1,22 @@
+- name: pequenas otimizações no fedora
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: desativando cups
+      command: systemctl disable cups
+    - name: Obter a versão do Fedora via comando shell
+      shell: rpm -E %fedora
+      register: fedora_version_output
+      changed_when: false # Não muda o estado do sistema
+    - name: Remover preferências padrão do Firefox (Red Hat)
+      file:
+        path: /usr/lib64/firefox/browser/defaults/preferences/firefox-redhat-default-prefs.js
+        state: absent
+    - name: Desabilitar NetworkManager-wait-online
+      systemd:
+        name: NetworkManager-wait-online.service
+        enabled: false
+    - name: Remover autostart do GNOME Software
+      file:
+        path: /etc/xdg/autostart/org.gnome.Software.desktop
+        state: absent

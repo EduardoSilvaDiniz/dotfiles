@@ -1,0 +1,31 @@
+- name: instala pcloud
+  hosts: localhost
+  gather_facts: no
+  vars:
+    user: "edu"
+    download_url: "https://def2.pcloud.com/cBZT1Rdz77ZUHXec97ZZZwMKn0kZ2ZZjaRZkZByolVZGFZwLZMRZyYZfHZTQZjpZE4ZvYZkQZdzZB8ZPLZ0RZ2gJM5Zs57zlGnMR2XWRmRySObc0QYiLaTy/pcloud"
+    target_dir: "/home/{{ user }}/.local/share/bin"
+    target_filename: "pcloud"
+  tasks:
+    - name: cria o diretorio .local/share/bin se não existir
+      ansible.builtin.file:
+        path: "/home/{{ user }}/.local/share/bin"
+        owner: "{{ user }}"
+        state: directory
+        mode: '0755'
+    - name: 2. Baixar o arquivo usando wget (ou get_url do Ansible)
+      ansible.builtin.get_url:
+        url: "{{ download_url }}"
+        dest: "{{ target_dir }}/{{ target_filename }}"
+        mode: '0755'
+        validate_certs: yes
+    - name: 3. Adicionando flag a+x ao arquivo
+      ansible.builtin.file:
+        path: "{{ target_dir }}/{{ target_filename }}"
+        mode: a+x
+    - name: 4. Executar o arquivo baixado
+      ansible.builtin.shell: |
+        nohup {{ target_dir }}/{{ target_filename }} > /dev/null 2>&1 &
+      args:
+        chdir: "{{ target_dir }}"
+      changed_when: true

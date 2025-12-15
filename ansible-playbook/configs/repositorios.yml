@@ -1,0 +1,31 @@
+- name: ativa repositorios de terceiros
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: ativando RPMfusion free
+      command: dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ fedora_version_output.stdout }}.noarch.rpm -y
+      when: ansible_distribution == "Fedora"
+
+    - name: ativando RPMfusion nonfree
+      command: dnf install https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ fedora_version_output.stdout }}.noarch.rpm -y
+      when: ansible_distribution == "Fedora"
+
+    - name: ativando repositorio Terra
+      command: dnf install --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release -y
+      when: ansible_distribution == "Fedora"
+
+    - name: atualizando grupo core
+      command: dnf group upgrade core -y
+      when: ansible_distribution == "Fedora"
+
+    - name: instalando grupo core
+      command: dnf group install core -y
+      when: ansible_distribution == "Fedora"
+
+    - name: Habilitar Flathub
+      become: true
+      flatpak_remote:
+        name: flathub
+        state: present
+        flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+

@@ -1,0 +1,72 @@
+- name: Desativa SELinux
+  hosts: localhost
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Instalar grupo Multimedia
+      dnf:
+        name: "@multimedia"
+        state: present
+    - name: Trocar ffmpeg-free por ffmpeg completo
+      dnf:
+        name: ffmpeg
+        state: present
+        allowerasing: true
+    - name: Remover ffmpeg-free (se ainda existir)
+      dnf:
+        name: ffmpeg-free
+        state: absent
+    - name: Atualizar grupo Multimedia sem weak deps e sem PackageKit plugin
+      dnf:
+        name: "@multimedia"
+        state: latest
+        install_weak_deps: false
+        exclude:
+          - PackageKit-gstreamer-plugin
+    - name: Instalar grupo Sound and Video
+      dnf:
+        name: "@sound-and-video"
+        state: present
+    - name: Instalar ffmpeg libs e VA-API
+      package:
+        name:
+          - ffmpeg-libs
+          - libva
+          - libva-utils
+        state: present
+    - name: Habilitar repositório fedora-cisco-openh264
+
+      ini_file:
+        path: /etc/yum.repos.d/fedora-cisco-openh264.repo
+        section: fedora-cisco-openh264
+        option: enabled
+        value: "1"
+        mode: '0644'
+    - name: Instalar OpenH264 e plugins GStreamer
+      package:
+        name:
+          - openh264
+          - gstreamer1-plugin-openh264
+          - mozilla-openh264
+        state: present
+
+#
+#  nvidia
+# sudo dnf install ffmpeg-libs libva libva-utils
+#
+# sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
+# sudo dnf config-manager setopt fedora-cisco-openh264.enabled=1
+# sudo dnf4 group install multimedia
+# sudo dnf swap 'ffmpeg-free' 'ffmpeg' --allowerasing # Switch to full FFMPEG.
+# sudo dnf upgrade @multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin # Installs gstreamer components. Required if you use Gnome Videos and other dependent applications.
+# sudo dnf group install -y sound-and-video # Installs useful Sound and Video complementary packages.
+
+# - name: Configurar multimídia no Fedora
+#   become: true
+#   when: ansible_facts['distribution'] == "Fedora"
+
+#  amd 
+# sudo dnf swap mesa-va-drivers mesa-va-drivers-freeworld
+# sudo dnf swap mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
+# sudo dnf swap mesa-va-drivers.i686 mesa-va-drivers-freeworld.i686
+# sudo dnf swap mesa-vdpau-drivers.i686 mesa-vdpau-drivers-freeworld.i686

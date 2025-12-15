@@ -1,0 +1,12 @@
+- name: instala rustup, cargo e rust nightly
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Instalando rustup
+      shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      args:
+        executable: /bin/bash
+    - name: Instalando Rust nightly
+      shell: . "$HOME/.cargo/env" && rustup toolchain install nightly
+      args:
+        executable: /bin/bash

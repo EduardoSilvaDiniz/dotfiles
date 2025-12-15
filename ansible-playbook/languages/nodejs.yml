@@ -1,0 +1,11 @@
+- name: clonar repositorio git neovim
+  hosts: localhost
+  tasks:
+    - name: instalando nodejs e pnpm com opt "weak.deps = false"
+      package:
+        name:
+          - nodejs
+          - pnpm
+        state: present
+        install_weak_deps: false
+      when: ansible_facts['distribution'] == "Fedora"

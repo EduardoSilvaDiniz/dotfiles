@@ -1,14 +1,12 @@
-- name: Desativa SELinux no Fedora 41 ou superior
+- name: Desativa SELinux
   hosts: localhost
   become: yes
   gather_facts: true
-
   pre_tasks:
     - name: Verifica se a versão do Fedora é 41 ou superior
       fail:
         msg: "Este playbook requer Fedora 41 ou mais recente."
       when: ansible_distribution == "Fedora" and ansible_distribution_major_version|int < 41
-
   tasks:
     - name: Garante que o SELinux está desativado no arquivo de configuração
       lineinfile:
@@ -16,13 +14,11 @@
         regexp: '^SELINUX='
         line: 'SELINUX=disabled'
         backrefs: yes
-        create: yes  #
-
+        create: yes
     - name: Desativa SELinux em tempo de execução (se necessário)
       command: setenforce 0
       when: ansible_selinux.status == "enabled"
-      ignore_errors: yes  #
-
+      ignore_errors: yes
     - name: Mensagem informativa
       debug:
         msg:

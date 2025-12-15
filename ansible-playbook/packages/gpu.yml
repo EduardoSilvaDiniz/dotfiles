@@ -1,0 +1,57 @@
+- name: Detecção de GPU NVIDIA ou AMD
+  hosts: localhost
+  become: yes
+
+  tasks:
+    - name: Listar atualizações pendentes
+      dnf:
+        list: updates
+        update_cache: yes # Força a atualização do cache (como dnf check-update)
+      register: dnf_updates_check
+      when: ansible_distribution == "Fedora"
+
+    - name: Parar o playbook se houver atualizações pendentes
+      fail:
+        msg: "[ERROR] O sistema precisa estar atualizado antes de instalar qualquer driver. Execute 'sudo dnf upgrade' e tente novamente."
+      when:
+        - ansible_distribution == "Fedora"
+        - dnf_updates_check is changed # Esta é a verificação mais simples e confiável
+        - dnf_updates_check.results | length > 0 # Confirma que há itens na lista de atualizações
+
+    - name: Executar lspci e registrar a saída (output)
+      shell: lspci | grep -E 'VGA|3D|Display'
+      register: gpu_detection_output # << A saída do comando é armazenada nesta variável
+      changed_when: false # Garante que a tarefa não reporte "CHANGED"
+
+    - name: Verificar e exibir se a GPU é NVIDIA
+      debug:
+        msg: "GPU Detectada: NVIDIA"
+      when: gpu_detection_output.stdout is search("NVIDIA")
+
+    - name: instalando driver nvidia proprietario
+      package:
+        name:
+          - akmod-nvidia
+          - xorg-x11-drv-nvidia-cuda
+        state: present
+      when: gpu_detection_output.stdout is search("NVIDIA")
+
+    - name: mensagem para usuario
+      debug:
+        msg: "Depois que a transação RPM terminar, lembre-se de esperar até que o código tenha sido construído. Isso pode levar até 5 minutos em alguns sistemas."
+      when: gpu_detection_output.stdout is search("NVIDIA")
+
+    - name: Verificar e exibir se a GPU é AMD
+      debug:
+        msg: "GPU Detectada: AMD/ATI. O sistema usará o driver open source amdgpu (Recomendado no Fedora)."
+      when:
+        # Verifica se a string "AMD" ou "ATI" está contida na saída padrão (stdout)
+        - gpu_detection_output.stdout is search("AMD") or gpu_detection_output.stdout is search("ATI")
+
+    - name: Exibir a saída bruta se nenhuma GPU for detectada
+      debug:
+        msg: "Nenhuma GPU NVIDIA ou AMD detectada ou saída inesperada. Saída bruta: {{ gpu_detection_output.stdout }}"
+      when:
+        - not gpu_detection_output.stdout is search("NVIDIA")
+        - not gpu_detection_output.stdout is search("AMD")
+        - not gpu_detection_output.stdout is search("ATI")

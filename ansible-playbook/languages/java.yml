@@ -12,11 +12,11 @@
     - name: Inicializando SDKMAN
       shell: "source {{ sdk_shell }} && sdk version"
 
-    - name: Instalando Semeru(IBM) 8.0.452
-      shell: "source {{ sdk_shell }} && sdk install java 8.0.452-sem"
-
-    - name: Instalando GraalVM(GraalVM Community) 21.0.2
-      shell: "source {{ sdk_shell }} && sdk install java 21.0.2-graalce"
+    - name: Instalando GraalVM(GraalVM Community) 24
+      shell: "source {{ sdk_shell }} && sdk install java 24.0.2-graalce"
 
     - name: Instalando Quarkus CLI
       shell: "source {{ sdk_shell }} && sdk install quarkus"
+
+    - name: Instalando Spring Boot CLI
+      shell: "source {{ sdk_shell }} && sdk install springboot"

@@ -1,0 +1,18 @@
+- name: Instalar Fish
+  hosts: localhost
+  become: yes
+  vars_prompt:
+    - name: user
+      prompt: "Digite o nome do usuário que terá o shell alterado para Fish"
+      private: no
+
+  tasks:
+    - name: Instalando fish
+      package:
+        name: fish
+        state: present
+
+    - name: Definindo fish como shell padrão do usuario "{{ user }}"
+      user:
+        name: "{{ user }}"
+        shell: /bin/fish

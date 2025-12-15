@@ -1,0 +1,21 @@
+- name: instala conjunto de ferramentas para php e framework laravel
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Obter valor de $USER
+      set_fact:
+        user_home: "{{ lookup('env', 'HOME') }}"
+    - name: instala php-cli phpunit composer
+      package:
+        name:
+          # composer php etc...
+          - php-cli
+          - phpunit
+          - composer
+        state: present
+      when: ansible_facts['distribution'] == "Fedora"
+
+    - name: instala laravel
+      shell: composer global require "laravel/installer"
+      when: ansible_facts['distribution'] == "Fedora"
+

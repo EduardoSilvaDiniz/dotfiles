@@ -1,0 +1,28 @@
+- name: pequenas otimizações no fedora
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Remover pacotes KDE e LibreOffice
+      package:
+        name:
+          - kmahjongg
+          - kmines
+          - kpat
+          - akregator-libs
+          - akregator
+          - kmail
+          - kmail-libs
+          - kontact
+          - kontact-libs
+          - korganizer
+          - korganizer-libs
+          - ktnef
+          - kdeconnectd
+          - neochat
+          - dragon
+          - kcalc
+          - "libreoffice*"
+        state: absent
+        autoremove: yes
+        allowerasing: yes
+      when: ansible_facts['distribution'] == "Fedora"
