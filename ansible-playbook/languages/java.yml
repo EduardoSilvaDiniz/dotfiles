@@ -23,6 +23,8 @@
       shell: "source {{ sdk_shell }} && sdk install springboot"
       args:
         executable: /bin/bash
+
+        #TODO testar esses comandos
     - name: suport para sdkman
       shell: curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
     - name: instalando plugin reitzig/SDKMAN-for-fish@v2.0.0
