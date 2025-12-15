@@ -8,6 +8,12 @@
     - name: ssh_source
       prompt: "Digite o caminho completo da pasta .ssh"
       private: no
+    - name: git_user_email
+      prompt: "Digite seu email usando no github"
+      private: no
+    - name: git_user_name
+      prompt: "Digite seu nome usando no github"
+      private: no
   tasks:
     - name: Verificar pasta .ssh
       stat:
@@ -41,3 +47,7 @@
       shell: |
         eval "$(ssh-agent)"
         ssh-add "{{ ssh_dest }}/id_ed25519"
+    - name: configurando git
+      shell: "git config --global user.email '{{ git_user_email }}'"
+    - name: configurando user.name
+      shell: "git config --global user.name '{{ git_user_name }}'"
