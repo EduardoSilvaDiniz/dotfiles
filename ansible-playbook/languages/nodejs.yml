@@ -1,5 +1,6 @@
 - name: clonar repositorio git neovim
   hosts: localhost
+  become: yes
   tasks:
     - name: instalando nodejs e pnpm com opt "weak.deps = false"
       package:

@@ -2,21 +2,32 @@
   hosts: localhost
   vars:
     sdk_shell: "$HOME/.sdkman/bin/sdkman-init.sh"
-
   tasks:
     - name: instalando SDKMAN
       shell: curl -s "https://get.sdkman.io" | bash
       args:
         executable: /bin/bash
-
     - name: Inicializando SDKMAN
       shell: "source {{ sdk_shell }} && sdk version"
-
+      args:
+        executable: /bin/bash
     - name: Instalando GraalVM(GraalVM Community) 24
       shell: "source {{ sdk_shell }} && sdk install java 24.0.2-graalce"
-
+      args:
+        executable: /bin/bash
     - name: Instalando Quarkus CLI
       shell: "source {{ sdk_shell }} && sdk install quarkus"
-
+      args:
+        executable: /bin/bash
     - name: Instalando Spring Boot CLI
       shell: "source {{ sdk_shell }} && sdk install springboot"
+      args:
+        executable: /bin/bash
+    - name: suport para sdkman
+      shell: curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
+    - name: instalando plugin reitzig/SDKMAN-for-fish@v2.0.0
+      shell: fisher install reitzig/SDKMAN-for-fish@v2.0.0
+    - name: config
+      shell: touch ~/.config/fish/conf.d/config_sdk.fish
+    - name: set sdk_custom_dir
+      shell: set -g __sdkman_custom_dir /home/edu/.sdkman/bin/sdkman-init.sh

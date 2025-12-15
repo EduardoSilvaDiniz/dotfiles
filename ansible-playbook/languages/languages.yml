@@ -1,5 +1,6 @@
 - name: clonar repositorio git neovim
   hosts: localhost
+  become: yes
   tasks:
     - name: instalando linguagens de programação
       package:
