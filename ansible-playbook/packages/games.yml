@@ -1,0 +1,12 @@
+- name: Instalar Fish
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Instalando pacotes necessários para gerar uma chave
+      package:
+        name:
+          - steam
+          - gamemoded
+          - gamescope
+    # - name: baixndo heroic games
+
