@@ -8,14 +8,20 @@
     - name: instala php-cli phpunit composer
       package:
         name:
-          # composer php etc...
           - php-cli
           - phpunit
           - composer
         state: present
-      when: ansible_facts['distribution'] == "Fedora"
-
     - name: instala laravel
-      shell: composer global require "laravel/installer"
-      when: ansible_facts['distribution'] == "Fedora"
+      shell: composer global require "laravel/installer" -n
 
+    - name: adicionando path .composer/vendor/bin para fish
+      shell: set -Ux fish_user_paths $fish_user_paths $HOME/.composer/vendor/bin
+      when: ansible_facts['env']['SHELL'] is defined and 'fish' in ansible_facts['env']['SHELL']
+      register: fish_path_result
+      changed_when: fish_path_result.rc == 0
+
+    - name: Exibe aviso se o PATH foi alterado
+      ansible.builtin.debug:
+        msg: "O PATH global do fish foi atualizado. O usuário deve reabrir o terminal ou executar 'exec fish' para que a mudança entre em vigor."
+      when: fish_path_result is changed
