@@ -9,4 +9,5 @@
           - pnpm
         state: present
         install_weak_deps: false
-      when: ansible_facts['distribution'] == "Fedora"
+    - name: executando setup do pnpm
+      command: pnpm setup
