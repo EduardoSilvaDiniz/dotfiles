@@ -1,0 +1,19 @@
+- name: instalando softwares de uso geral
+  hosts: localhost
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: pacotes
+      package:
+        name: 
+          - btop
+          - keepassxc
+          - fastfetch
+          - foot
+          - steam
+          - gamemode
+          - gamescope
+
+    - name: ativando serviço foot server para usuario
+      command: systemctl --user --now enable foot-server
+      become: false

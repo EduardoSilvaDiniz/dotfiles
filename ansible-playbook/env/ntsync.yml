@@ -1,0 +1,15 @@
+
+    - name: Load ntsync module at boot
+      copy:
+        dest: /etc/modules-load.d/ntsync.conf
+        mode: '0644'
+        content: |
+          ntsync
+    - name: Configure Proton NTSync environment variables
+      copy:
+        dest: /etc/profile.d/proton.conf
+        mode: '0644'
+        content: |
+          export PROTON_ENABLE_NTSYNC=1
+          export PROTON_NO_ESYNC=1
+          export PROTON_NO_FSYNC=1

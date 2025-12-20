@@ -1,0 +1,26 @@
+- name: adiciona parametros de otimização para o kernel
+  hosts: localhost
+  become: yes
+  vars:
+    grub_kernel_params:
+      - split_lock_detect=false # desativa exceções de split-lock (menos overhead)
+      - mitigations=off # desativa mitigações de CPU (mais performance)
+      - nowatchdog # desativa watchdog do kernel
+      - nvme.noacpi=1 # ignora ACPI do NVMe
+      - transparent_hugepage=always # força uso de transparent huge pages
+      - amd_pstate=active # usa driver amd-pstate em modo ativo
+      - rhgb # boot gráfico do Fedora (default do fedora)
+      - quiet # reduz mensagens no boot (default do fedora)
+      - rd.driver.blacklist=nouveau,nova_core # ativa blacklist para driver nouveau
+      - modprobe.blacklist=nouveau,nova_core
+    tasks:
+    - name: Ensure kernel parameters are present in GRUB
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_CMDLINE_LINUX='
+        line: >
+          GRUB_CMDLINE_LINUX="{{ grub_kernel_params | join(' ') }}"
+        backrefs: no
+
+    - name: Regenerate GRUB config (UEFI)
+      command: grub2-mkconfig -o /boot/grub2/grub.cfg

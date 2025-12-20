@@ -1,0 +1,56 @@
+- name: removação de serviços e configurações default do fedora
+  hosts: localhost
+  become: yes
+  gather_facts: true
+  pre_tasks:
+    - name: Verifica se a versão do Fedora é 41 ou superior
+      fail:
+        msg: "Este playbook requer Fedora 41 ou mais recente."
+      when: ansible_distribution == "Fedora" and ansible_distribution_major_version|int < 41
+  tasks:
+    - name: desativando cups (serviço de impressora)
+      command: systemctl disable cups
+    - name: Obter a versão do Fedora via comando shell
+      shell: rpm -E %fedora
+      register: fedora_version_output
+      changed_when: false # Não muda o estado do sistema
+    - name: removendo configuração da redhat para Firefox
+      file:
+        path: /usr/lib64/firefox/browser/defaults/preferences/firefox-redhat-default-prefs.js
+        state: absent
+    - name: desativando o serviço NetworkManager-wait-online
+      systemd:
+        name: NetworkManager-wait-online.service
+        enabled: false
+    - name: Remover autostart do GNOME Software
+      file:
+        path: /etc/xdg/autostart/org.gnome.Software.desktop
+        state: absent
+    - name: removendo pacotes desnecessarios do Kde
+      package:
+        name:
+          - kmahjongg
+          - kmines
+          - kpat
+          - akregator-libs
+          - akregator
+          - kmail
+          - kmail-libs
+          - kontact
+          - kontact-libs
+          - korganizer
+          - korganizer-libs
+          - ktnef
+          - kdeconnectd
+          - neochat
+          - dragon
+          - kcalc
+        state: absent
+        autoremove: yes
+        allowerasing: yes
+      when: ansible_facts['distribution'] == "Fedora"
+
+    - name: removendo libreoffice
+      package:
+        name:
+          - "libreoffice*"

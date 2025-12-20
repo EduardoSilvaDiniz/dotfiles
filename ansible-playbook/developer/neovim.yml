@@ -23,7 +23,6 @@
           - fd-find
           - ripgrep
           - neovim
-          - foot
         state: present
       when: ansible_facts['distribution'] == "Fedora"
     - name: instalando openssl
@@ -65,5 +64,3 @@
         state: absent
     - name: Atualizar o cache de fontes
       command: fc-cache -fv
-    - name: Habilita foot-server
-      command: systemctl --user --now enable foot-server

@@ -1,0 +1,12 @@
+- name: Instalar Fish
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Instalando fish
+      package:
+        name: fish
+        state: present
+    - name: Definindo fish como shell padrão do usuario "{{ ansible_user }}"
+      user:
+        name: "{{ ansible_user }}"
+        shell: /bin/fish

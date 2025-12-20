@@ -1,0 +1,16 @@
+- name: instalação do kernel personalizando cachyos
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: ativando repositorio copr kernel-cachyos
+      command: dnf copr enable bieszczaders/kernel-cachyos -y
+    - name: instalando kernel cachyos
+      package:
+        name:
+          - kernel-cachyos
+          - kernel-cachyos-devel-matched
+    - name: Mensagem informativa
+      debug:
+        msg: >
+          Reinicie o computador, quando aparece a logo de boot, segure SHIFT para aparece o menu de boot do grub, assim você consegue certificar que foi instalando corretamente.
+

@@ -1,0 +1,15 @@
+- name: configuração para dnf
+  hosts: localhost
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Configure DNF performance options
+      ini_file:
+        path: /etc/dnf/dnf.conf
+        section: main
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+        state: present
+      loop:
+        - {option: "max_parallel_downloads", value: "10"}
+        - {option: "fastestmirror", value: "True"}

@@ -1,0 +1,26 @@
+- name: instalação do driver NVIDIA (Fedora 41+)
+  hosts: localhost
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Instalando driver NVIDIA
+      package:
+        name:
+          - akmod-nvidia
+          - xorg-x11-drv-nvidia-cuda
+        state: present
+    - name: 'configura parametros para o driver nvidia'
+      copy:
+        dest: /etc/profile.d/nvidia.conf
+        mode: '0644'
+        content: |
+          export __GL_THREADED_OPTIMIZATIONS=1
+          export __GL_SHADER_DISK_CACHE=1
+          export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
+          export __GL_SHADER_DISK_CACHE_SIZE=10000000000
+          export __GL_SHADER_DISK_CACHE_PATH="$HOME/.nv_shader_cache"
+    - name: Mensagem informativa
+      debug:
+        msg: >
+          Reinicie agora. Você verá uma tela solicitando a inscrição da chave. Escolha importar a chave gerada anteriormente e insira a senha definida.
+
