@@ -1,0 +1,8 @@
+- name: instalando kit de ferramentas para desenvolvimento web
+  hosts: localhost
+  tasks:
+    - name: instalando nodejs
+      import_tasks: ./nodejs.yml
+
+    - name: instalando LSP vscode-langservers-extracted
+      command: pnpm i -g vscode-langservers-extracted
