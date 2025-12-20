@@ -1,0 +1,16 @@
+- name: instalação para linguagem C
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: instalando compilador
+      package:
+        name:
+          - gcc
+          - gcc-c++
+        state: present
+
+    - name: instalando LSP clang
+      package:
+        name:
+          - clang
+        state: present

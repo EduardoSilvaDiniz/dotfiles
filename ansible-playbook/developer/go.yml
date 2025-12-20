@@ -1,0 +1,9 @@
+- name: instalação para linguagem go
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: instalando compilador e LSP
+      package:
+        name:
+          - golang
+        state: present

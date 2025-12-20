@@ -1,0 +1,30 @@
+- name: instala neovim e suas dependencias + foot
+  hosts: localhost
+  become: yes
+  vars:
+    file_zip: "/tmp/font.zip"
+  tasks:
+    - name: Obter valor de $USER
+      set_fact:
+        user_home: "{{ lookup('env', 'HOME') }}"
+    - name: baixando fonte IosevkaTerm (nerd-fonts)
+      get_url:
+        url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/IosevkaTerm.zip"
+        dest: "{{ file_zip }}"
+        mode: '0644'
+    - name: Criando diretorio {{ user_home }}/.local/share/fonts
+      file:
+        path: "{{ user_home }}/.local/share/fonts"
+        state: directory
+        mode: '0755'
+    - name: extraindo em {{ user_home }}
+      unarchive:
+        src: "{{ file_zip }}"
+        dest: "{{ user_home }}/.local/share/fonts"
+        remote_src: yes
+    - name: apagando /tmp/font.zip
+      file:
+        path: "{{ file_zip }}"
+        state: absent
+    - name: Atualizar o cache de fontes
+      command: fc-cache -fv

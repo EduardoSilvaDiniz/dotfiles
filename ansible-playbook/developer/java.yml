@@ -3,6 +3,11 @@
   vars:
     sdk_shell: "$HOME/.sdkman/bin/sdkman-init.sh"
   tasks:
+    - name: instalando java openjdk ultima versão disponivel no repositorio
+      package:
+        name:
+          - java-latest-openjdk
+          - java-latest-openjdk-devel
     - name: instalando SDKMAN
       shell: curl -s "https://get.sdkman.io" | bash
       args:
@@ -23,7 +28,6 @@
       shell: "source {{ sdk_shell }} && sdk install springboot"
       args:
         executable: /bin/bash
-
         #TODO testar esses comandos
     - name: suport para sdkman
       shell: curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
