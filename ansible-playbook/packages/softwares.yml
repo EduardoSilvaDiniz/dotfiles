@@ -3,6 +3,9 @@
   become: yes
   gather_facts: true
   tasks:
+    - name: ativando repositorio atim/lazygit
+      command: dnf copr enable atim/lazygit -y
+
     - name: pacotes
       package:
         name: 
@@ -13,7 +16,9 @@
           - steam
           - gamemode
           - gamescope
+          - lazygit
 
     - name: ativando serviço foot server para usuario
       command: systemctl --user --now enable foot-server
       become: false
+
