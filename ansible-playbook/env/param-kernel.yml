@@ -14,7 +14,12 @@
       - rd.driver.blacklist=nouveau,nova_core # ativa blacklist para driver nouveau
       - modprobe.blacklist=nouveau,nova_core
     tasks:
-    - name: Ensure kernel parameters are present in GRUB
+    - name: 'criando backup para o arquivo grub'
+      copy:
+        src: /etc/default/grub
+        dest: /etc/default/grub-bak
+        remote_src: true
+    - name: colocando parametros em grub cmdline linux
       lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_CMDLINE_LINUX='
@@ -22,5 +27,5 @@
           GRUB_CMDLINE_LINUX="{{ grub_kernel_params | join(' ') }}"
         backrefs: no
 
-    - name: Regenerate GRUB config (UEFI)
+    - name: 'criando novo grub.cfg em /boot/grub2'
       command: grub2-mkconfig -o /boot/grub2/grub.cfg
