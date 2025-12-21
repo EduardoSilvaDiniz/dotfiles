@@ -5,11 +5,15 @@
     - name: Obter valor de $USER
       set_fact:
         user_home: "{{ lookup('env', 'HOME') }}"
-    - name: instala php-cli phpunit composer
+    - name: instalando php, phpunit, extensões para banco de dados (sqlite, mysql, postgresql)
       package:
         name:
           - php-cli
           - phpunit
+          - php-pdo
+          - php-sqlite3
+          - php-pgsql
+          - php-mysqlnd
           - composer
         state: present
     - name: instala laravel
