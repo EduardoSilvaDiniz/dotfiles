@@ -1,0 +1,5 @@
+## Tema automatico via FPP
+## https://www.reddit.com/r/LibreWolf/comments/1d9d3k4/dark_mode_websites_despite_resist_fingerprinting/
+    privacy.resistFingerprinting = false
+    privacy.fingerprintingProtection = true
+    privacy.fingerprintingProtection.overrides = +AllTargets,-CSSPrefersColorScheme
