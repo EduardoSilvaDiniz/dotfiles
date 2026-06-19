@@ -1,6 +1,6 @@
 services:
   postgresql:
-    image: postgres
+    image: docker.io/library/postgres:latest
     restart: always
     shm_size: 128mb
     volumes:
