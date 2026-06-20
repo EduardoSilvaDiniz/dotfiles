@@ -1,6 +1,6 @@
 services:
   navidrome:
-    image: deluan/navidrome:latest
+    image: docker.io/deluan/navidrome:latest
     container_name: navidrome
 
     ports:
