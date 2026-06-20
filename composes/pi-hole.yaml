@@ -1,0 +1,41 @@
+services:
+  pihole:
+    container_name: pihole
+    image: docker.io/pihole/pihole:latest
+    ports:
+      # Portas DNS
+      - "53:53/tcp"
+      - "53:53/udp"
+      # Porta HTTP padrão
+      - "80:80/tcp"
+      # Porta HTTPS padrão. O FTL irá gerar um certificado autoassinado
+      - "443:443/tcp"
+      # Descomente abaixo se estiver usando o Pi-hole como servidor DHCP
+      #- "67:67/udp"
+      # Descomente a linha abaixo se estiver usando o Pi-hole como servidor NTP
+      #- "123:123/udp"
+    environment:
+      # Defina o fuso horário apropriado para sua localização a partir de
+      # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones, por exemplo:
+      TZ: 'America/Sao_Paulo'
+      # Defina uma senha para acessar a interface web. Caso não defina uma,
+      # uma senha aleatória será atribuída
+      FTLCONF_webserver_api_password: 'COLOQUE UMA SENHA'
+      # Se estiver usando a configuração de rede padrão `bridge` do Docker,
+      # o modo de escuta DNS deve ser definido como 'ALL'
+      FTLCONF_dns_listeningMode: 'ALL'
+    # Os volumes armazenam seus dados entre atualizações do container
+    volumes:
+      # Para persistir os bancos de dados do Pi-hole e o arquivo de configuração comum
+      - './etc-pihole:/etc/pihole'
+    cap_add:
+      # Leia https://docs.pi-hole.net/docker/configuration/#note-on-capabilities
+      # Obrigatório se você estiver usando o Pi-hole como servidor DHCP;
+      # caso contrário, não é necessário
+      - NET_ADMIN
+      # Necessário caso você esteja usando o Pi-hole como cliente NTP
+      # para poder configurar a hora do sistema do host
+      - SYS_TIME
+      # Opcional, caso o Pi-hole deva receber um pouco mais de tempo de processamento
+      - SYS_NICE
+    restart: unless-stopped
