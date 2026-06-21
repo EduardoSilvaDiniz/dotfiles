@@ -6,6 +6,6 @@ services:
     environment:
       DOMAIN: "https://vw.domain.tld"
     volumes:
-      - ./vw-data/:/data/
+      - ./data/:/data/
     ports:
       - 127.0.0.1:8000:80
