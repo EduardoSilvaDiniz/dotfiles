@@ -3,9 +3,23 @@ set -e
 
 echo "=== Instalando dependências ==="
 apt update
-apt install -y wget libopengl0 libglx0 libegl1
+apt install -y wget libopengl0 libglx0 libegl1 i2c-tools
+
+echo "=== Configurando módulos I2C ==="
+
+touch /etc/modules
+
+for module in i2c-dev i2c-i801; do
+    if ! grep -qxF "$module" /etc/modules; then
+        echo "$module" >> /etc/modules
+    fi
+done
+
+modprobe i2c-dev
+modprobe i2c-i801
 
 echo "=== Baixando OpenRGB ==="
+
 cd /root
 
 wget -O openrgb.AppImage \
@@ -30,9 +44,30 @@ WantedBy=multi-user.target
 EOF
 
 echo "=== Habilitando serviço ==="
+
 systemctl daemon-reload
 systemctl enable openrgb.service
 systemctl start openrgb.service
 
-echo "=== Concluído! ==="
+echo "=== Instalação concluída ==="
 systemctl status openrgb.service --no-pager
+
+echo
+echo "=========================================="
+echo " DICA PARA PROCESSADORES AMD"
+echo "=========================================="
+echo
+echo "Se estiver usando AMD, edite /etc/modules:"
+echo
+echo "vim /etc/modules"
+echo
+echo "Troque:"
+echo "i2c-i801"
+echo
+echo "Por:"
+echo "i2c-piix4"
+echo
+echo "Mantenha o módulo i2c-dev."
+echo "Depois reinicie o Proxmox."
+echo
+echo "=========================================="
