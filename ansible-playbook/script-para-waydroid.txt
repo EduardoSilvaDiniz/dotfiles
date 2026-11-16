@@ -1,0 +1,7 @@
+sudo apt install waydroid
+
+waydroid prop set persist.waydroid.width 420
+waydroid prop set persist.waydroid.height 920
+waydroid prop set persist.waydroid.multi_windows false
+waydroid prop set persist.waydroid.fullscreen false
+
