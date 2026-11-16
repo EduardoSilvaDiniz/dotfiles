@@ -1,13 +1,21 @@
-- name: clonar repositorio git neovim
+- name: Instalar Node.js e pnpm
   hosts: localhost
   become: yes
+
   tasks:
-    - name: instalando nodejs e pnpm com opt "weak.deps = false"
-      package:
+    - name: Instalar Node.js e pnpm no Fedora
+      ansible.builtin.package:
         name:
           - nodejs
-          - pnpm
+          - npm
         state: present
         install_weak_deps: false
-    - name: executando setup do pnpm
-      command: pnpm setup
+      when: ansible_facts['os_family'] == 'RedHat'
+
+    - name: Instalar Node.js e pnpm no Debian
+      ansible.builtin.package:
+        name:
+          - nodejs
+          - npm
+        state: present
+      when: ansible_facts['os_family'] == 'Debian'

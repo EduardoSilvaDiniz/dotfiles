@@ -1,12 +1,14 @@
-- name: instala conjunto de ferramentas para php e framework laravel
+- name: instala conjunto de ferramentas para PHP e framework Laravel
   hosts: localhost
   become: yes
+
   tasks:
     - name: Obter valor de $USER
       set_fact:
         user_home: "{{ lookup('env', 'HOME') }}"
-    - name: instalando php, phpunit, extensões para banco de dados (sqlite, mysql, postgresql)
-      package:
+
+    - name: Instalar PHP e ferramentas no Fedora
+      ansible.builtin.package:
         name:
           - php-cli
           - phpunit
@@ -16,12 +18,30 @@
           - php-mysqlnd
           - composer
         state: present
-    - name: instala laravel
-      shell: composer global require "laravel/installer" -n
+      when: ansible_facts['os_family'] == 'RedHat'
 
-    - name: adicionando path .composer/vendor/bin para fish
-      shell: set -Ux fish_user_paths $fish_user_paths $HOME/.composer/vendor/bin
-      when: ansible_facts['env']['SHELL'] is defined and 'fish' in ansible_facts['env']['SHELL']
+    - name: Instalar PHP e ferramentas no Debian
+      ansible.builtin.package:
+        name:
+          - php-cli
+          - phpunit
+          - php-common
+          - php-sqlite3
+          - php-pgsql
+          - php-mysql
+          - composer
+        state: present
+      when: ansible_facts['os_family'] == 'Debian'
+
+    - name: Instala Laravel
+      ansible.builtin.shell: composer global require "laravel/installer" -n
+      become: false
+
+    - name: Adicionando PATH .config/composer/vendor/bin para fish
+      ansible.builtin.shell: set -Ux fish_user_paths $fish_user_paths $HOME/.config/composer/vendor/bin
+      when:
+        - ansible_facts['env']['SHELL'] is defined
+        - "'fish' in ansible_facts['env']['SHELL']"
       register: fish_path_result
       changed_when: fish_path_result.rc == 0
 
